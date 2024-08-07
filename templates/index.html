@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Status Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        header {
+            background-color: var(--header-bg);
+            color: var(--header-color);
+            text-align: center;
+            padding: 1em;
+            font-size: 24px;
+        }
+        .container {
+            padding: 20px;
+        }
+        .theme-switcher, .view-switcher {
+            text-align: right;
+            margin-bottom: 10px;
+        }
+        .device-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 5px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .device-circle:hover {
+            transform: scale(1.1);
+        }
+        .tooltip {
+            visibility: hidden;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position above the circle */
+            left: 50%;
+            margin-left: -60px;
+        }
+        .device-circle:hover .tooltip {
+            visibility: visible;
+        }
+        .selected {
+            border: 2px solid blue;
+        }
+        .legend {
+            margin-top: 20px;
+        }
+        .legend div {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+        }
+        @media (max-width: 600px) {
+            .device-circle {
+                width: 20px;
+                height: 20px;
+            }
+            #device-details {
+                width: 100%;
+                height: 300px;
+            }
+        }
+
+        /* Default Bright Theme */
+        :root {
+            --header-bg: #4CAF50;
+            --header-color: white;
+            --bg-color: #f4f4f9;
+            --text-color: black;
+        }
+
+        /* Dark Theme */
+        body.dark-theme {
+            --header-bg: #333;
+            --header-color: white;
+            --bg-color: #2c2c2c;
+            --text-color: white;
+        }
+
+        /* Green Theme */
+        body.green-theme {
+            --header-bg: #003300;
+            --header-color: white;
+            --bg-color: #001a00;
+            --text-color: #66ff66;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>Device Status Dashboard</header>
+    <div class="theme-switcher">
+        <label for="theme-select">Choose Theme: </label>
+        <select id="theme-select" onchange="switchTheme(this.value)">
+            <option value="default">Bright</option>
+            <option value="dark">Dark</option>
+            <option value="green">Green</option>
+        </select>
+    </div>
+    <div class="view-switcher">
+        <button onclick="switchView('/')">Graph View</button>
+        <button onclick="switchView('/table-view')">Table View</button>
+    </div>
+    <div class="container">
+        {% for group, devices in grouped_devices.items() %}
+        <div class="section">
+            <div class="section-title">{{ group }}</div>
+            <div id="devices-{{ group }}">
+                {% for device in devices %}
+                <div class="device-circle" id="device-{{ device.id }}" style="background-color: {{ device.color }};" onclick="showDeviceDetails('{{ device.id }}')">
+                    <div class="tooltip">Device {{ device.id }}<br>Score: {{ device.score }}</div>
+                    <div id="sparkline-{{ device.id }}" class="sparkline"></div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+        <div class="legend">
+            <div style="background-color: green;"></div> Good (80-100)
+            <div style="background-color: yellow;"></div> Average (50-79)
+            <div style="background-color: red;"></div> Poor (0-49)
+        </div>
+        <div id="device-details" style="width: 100%; height: 500px; margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                switchTheme(savedTheme);
+                document.getElementById('theme-select').value = savedTheme;
+            }
+        });
+
+        function switchTheme(theme) {
+            document.body.className = '';
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+            } else if (theme === 'green') {
+                document.body.classList.add('green-theme');
+            }
+            localStorage.setItem('theme', theme);
+        }
+
+        function switchView(view) {
+            const theme = document.getElementById('theme-select').value;
+            window.location.href = `${view}?theme=${theme}`;
+        }
+
+        function showDeviceDetails(deviceId) {
+            // Remove previous selection
+            document.querySelectorAll('.device-circle').forEach(function(circle) {
+                circle.classList.remove('selected');
+            });
+
+            // Highlight the selected device
+            document.getElementById('device-' + deviceId).classList.add('selected');
+
+            fetch(`/device/${deviceId}`)
+                .then(response => response.json())
+                .then(data => {
+                    var graphDiv = document.getElementById('device-details');
+                    var graphData = JSON.parse(data);
+                    var layout = {
+                        title: `Operation Scores for the Past 24 Hours - Device ${deviceId}`,
+                        xaxis: {
+                            title: 'Time Points',
+                            showgrid: true,
+                            zeroline: true
+                        },
+                        yaxis: {
+                            title: 'Operation Score',
+                            showline: true
+                        }
+                    };
+                    Plotly.react(graphDiv, graphData.data, layout);
+                });
+        }
+
+        function drawSparklines() {
+            document.querySelectorAll('.device-circle').forEach(function(circle) {
+                var deviceId = circle.id.split('-')[1];
+                fetch(`/device/${deviceId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        var sparklineDiv = document.getElementById('sparkline-' + deviceId);
+                        var graphData = JSON.parse(data);
+                        Plotly.newPlot(sparklineDiv, [{
+                            x: graphData.data[0].x,
+                            y: graphData.data[0].y,
+                            type: 'scatter',
+                            mode: 'lines',
+                            line: { width: 1 }
+                        }], {
+                            margin: { t: 0, b: 0, l: 0, r: 0 },
+                            xaxis: { visible: false },
+                            yaxis: { visible: false }
+                        });
+                    });
+            });
+        }
+        
+        // Only draw sparklines when necessary, not on page load
+        document.addEventListener("DOMContentLoaded", function() {
+            // You can draw sparklines here if needed or remove this line if not needed
+            // drawSparklines();
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+

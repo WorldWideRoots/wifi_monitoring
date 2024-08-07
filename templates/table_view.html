@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Status Table View</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        header {
+            background-color: var(--header-bg);
+            color: var(--header-color);
+            text-align: center;
+            padding: 1em;
+            font-size: 24px;
+        }
+        .container {
+            padding: 20px;
+        }
+        .theme-switcher, .view-switcher {
+            text-align: right;
+            margin-bottom: 10px;
+        }
+        .device-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .device-id {
+            width: 100px;
+            text-align: center;
+        }
+        .color-box {
+            width: 30px;
+            height: 10px;
+            margin-right: 2px;
+        }
+        /* Default Bright Theme */
+        :root {
+            --header-bg: #4CAF50;
+            --header-color: white;
+            --bg-color: #f4f4f9;
+            --text-color: black;
+        }
+
+        /* Dark Theme */
+        body.dark-theme {
+            --header-bg: #333;
+            --header-color: white;
+            --bg-color: #2c2c2c;
+            --text-color: white;
+        }
+
+        /* Green Theme */
+        body.green-theme {
+            --header-bg: #003300;
+            --header-color: white;
+            --bg-color: #001a00;
+            --text-color: #66ff66;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+    <header>Device Status Table View</header>
+    <div class="theme-switcher">
+        <label for="theme-select">Choose Theme: </label>
+        <select id="theme-select" onchange="switchTheme(this.value)">
+            <option value="default">Bright</option>
+            <option value="dark">Dark</option>
+            <option value="green">Green</option>
+        </select>
+    </div>
+    <div class="view-switcher">
+        <button onclick="switchView('/')">Graph View</button>
+        <button onclick="switchView('/table-view')">Table View</button>
+    </div>
+    <div class="container">
+        {% for row in data %}
+        <div class="device-row">
+            <div class="device-id">{{ row.device_id }}</div>
+            {% for i in range(39, 55) %}
+            <div class="color-box" style="background-color: {{ get_color_for_score(row['past_time_' + i|string]) }};"></div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                switchTheme(savedTheme);
+                document.getElementById('theme-select').value = savedTheme;
+            }
+        });
+
+        function switchTheme(theme) {
+            document.body.className = '';
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+            } else if (theme === 'green') {
+                document.body.classList.add('green-theme');
+            }
+            localStorage.setItem('theme', theme);
+        }
+
+        function switchView(view) {
+            const theme = document.getElementById('theme-select').value;
+            window.location.href = `${view}?theme=${theme}`;
+        }
+    </script>
+</body>
+</html>
+
