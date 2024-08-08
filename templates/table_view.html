@@ -88,7 +88,7 @@
         {% for row in data %}
         <div class="device-row">
             <div class="device-id">{{ row.device_id }}</div>
-            {% for i in range(39, 55) %}
+            {% for i in range(31, 55) %}
             <div class="color-box" style="background-color: {{ get_color_for_score(row['past_time_' + i|string]) }};"></div>
             {% endfor %}
         </div>

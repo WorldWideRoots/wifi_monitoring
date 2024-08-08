@@ -31,8 +31,8 @@ def index():
 
 @app.route('/table-view')
 def table_view():
-    # Extract past 16 time steps for each device
-    df_table = df[['device_id', 'current_op_score'] + [f'past_time_{i}' for i in range(39, 55)]]
+    # Extract past 24 time steps for each device
+    df_table = df[['device_id', 'current_op_score'] + [f'past_time_{i}' for i in range(31, 55)]]
     return render_template('table_view.html', data=df_table.to_dict(orient='records'), get_color_for_score=get_color_for_score)
 
 @app.route('/device/<device_id>')
