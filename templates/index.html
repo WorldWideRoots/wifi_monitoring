@@ -136,7 +136,7 @@
     <div class="container">
         {% for group, devices in grouped_devices.items() %}
         <div class="section">
-            <div class="section-title">{{ group }}</div>
+            <div class="section-title">{{ group }} - {{ category_info[group] }}</div>
             <div id="devices-{{ group }}">
                 {% for device in devices %}
                 <div class="device-circle" id="device-{{ device.id }}" style="background-color: {{ device.color }};" onclick="showDeviceDetails('{{ device.id }}')">

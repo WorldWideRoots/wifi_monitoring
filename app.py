@@ -11,6 +11,11 @@ df = pd.read_csv('device_data.csv')
 df['group'] = pd.cut(df['current_op_score'], bins=[-1, 49, 79, 100], labels=['Poor (0-49)', 'Average (50-79)', 'Good (80-100)'])
 df = df.sort_values(by='current_op_score')
 
+# Calculate counts and percentages for each category
+total_devices = len(df)
+category_counts = df['group'].value_counts()
+category_percentages = (category_counts / total_devices * 100).round(2)
+
 @app.route('/')
 def index():
     # Create a list of device status circles grouped by score ranges
@@ -27,7 +32,13 @@ def index():
         }
         grouped_devices[row['group']].append(device)
     
-    return render_template('index.html', grouped_devices=grouped_devices)
+    category_info = {
+        'Poor (0-49)': f"{category_counts['Poor (0-49)']} ({category_percentages['Poor (0-49)']}%)",
+        'Average (50-79)': f"{category_counts['Average (50-79)']} ({category_percentages['Average (50-79)']}%)",
+        'Good (80-100)': f"{category_counts['Good (80-100)']} ({category_percentages['Good (80-100)']}%)"
+    }
+    
+    return render_template('index.html', grouped_devices=grouped_devices, category_info=category_info)
 
 @app.route('/table-view')
 def table_view():
