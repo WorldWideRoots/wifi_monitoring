@@ -34,11 +34,13 @@
         .device-id {
             width: 100px;
             text-align: center;
+            font-weight: bold;
         }
         .color-box {
             width: 30px;
             height: 10px;
             margin-right: 2px;
+            background-color: #ddd;
         }
         /* Default Bright Theme */
         :root {
@@ -89,7 +91,7 @@
         <div class="device-row">
             <div class="device-id">{{ row.device_id }}</div>
             {% for i in range(31, 55) %}
-            <div class="color-box" style="background-color: {{ get_color_for_score(row['past_time_' + i|string]) }};"></div>
+            <div class="color-box" style="background-color: {{ get_color(row['past_time_' ~ i]) }};"></div>
             {% endfor %}
         </div>
         {% endfor %}
@@ -121,4 +123,5 @@
     </script>
 </body>
 </html>
+
 
