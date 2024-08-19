@@ -1,0 +1,101 @@
+device_name,device_id,up_time,location
+Device_1,03d73332-f4aa-4b0a-8ee0-1d07a4fb421d,99.878,Phoenix
+Device_2,07a0f445-6413-41d8-a5fa-518bf520529e,99.595,Chicago
+Device_3,61568d58-5c66-49c5-b99f-769c3a9e915a,99.937,San Jose
+Device_4,e5925040-c8d6-4a6b-84e8-cf51ae0abe46,99.969,San Antonio
+Device_5,8aab168a-9356-4c87-8a62-359e7a97eda9,99.67,San Diego
+Device_6,e99b83b7-dd6d-473a-96e7-23d4df7a5e23,99.736,Philadelphia
+Device_7,bc14f9e2-d3d3-4d20-8273-ded1981e46b7,99.631,San Antonio
+Device_8,72eb7e29-32f0-42d6-a084-f19f0bc027c1,99.95,Houston
+Device_9,341481e9-1a48-461e-8189-ae044fb0040e,99.521,Dallas
+Device_10,8a7569ec-7e2b-4be0-b5fc-2ce419992268,99.854,New York
+Device_11,59e16920-675f-4a29-acd5-e0113a921367,99.58,Los Angeles
+Device_12,09eb5e30-f93f-4d46-9d2b-a7a7a7e808f1,99.67,Los Angeles
+Device_13,37c880d7-8808-434b-a68e-11720ea0d864,99.629,Phoenix
+Device_14,0f33061c-e9e0-4aec-98f0-6990852ffc5d,99.975,Chicago
+Device_15,11a6ee79-dc22-4a09-8d36-6b42b3d684ff,99.98,Los Angeles
+Device_16,a82e8eb4-f965-4ea2-83a7-fe893e8cc6e2,99.597,San Antonio
+Device_17,2230a146-b6e8-48eb-a9b2-a924f92feabc,99.821,New York
+Device_18,ac16957b-5ab2-4020-a225-2ebe6362d2dc,99.509,Los Angeles
+Device_19,660b4861-ca4f-4d25-b5cd-63441a6c8249,99.57,San Diego
+Device_20,67886a57-cccf-495f-a00c-cebc2e078ccc,99.972,San Diego
+Device_21,6f06cb7f-96cc-4079-8b07-34e7d6a63067,99.556,Houston
+Device_22,6e08e9a5-42cd-4e64-b151-c66ca30e411b,99.8,Dallas
+Device_23,ebde7c8c-06b6-4ba9-9b85-41da686d266f,99.825,San Antonio
+Device_24,2275e647-8ffb-4a74-bf4b-e634483933dc,99.735,Dallas
+Device_25,714ef3f0-1393-45e8-aee2-b40521f25e71,99.919,Phoenix
+Device_26,95d84f19-18e2-4478-8de6-f17d2ef08567,99.993,Chicago
+Device_27,11ea6d89-f9ec-4d0b-a0f1-515faf58f543,99.848,New York
+Device_28,ee0a5ae3-fcaf-4cae-ba51-20ca9cdef85f,99.827,Chicago
+Device_29,5c72a00a-31ef-44c0-b40e-77f85966e05b,99.838,Chicago
+Device_30,d442cb25-f484-44dc-aba0-965e72706ee2,99.69,San Diego
+Device_31,aef368e3-9f0e-4a28-a544-7dc23faabf8a,99.522,Phoenix
+Device_32,ffb1b350-bd43-43f8-a6fa-f0b0228d16c0,99.665,Dallas
+Device_33,99786242-3a6f-4420-bb15-5d3de81311aa,99.988,San Antonio
+Device_34,bbd57d50-acf0-4c9a-87c8-21e86ca18f76,99.52,San Antonio
+Device_35,085d4013-f38f-473b-9e98-1998f3ee9013,99.956,New York
+Device_36,d3399661-d59a-43c6-9c70-f4d491a17ed1,99.758,Chicago
+Device_37,ac81ab1e-fed1-4502-a034-3c7582f5db5d,99.628,Philadelphia
+Device_38,88144bb1-a540-407e-b402-7190fcbf8e36,99.879,Philadelphia
+Device_39,69b360d5-606c-4c88-aaf5-d504e483f35c,99.713,New York
+Device_40,88aeab4f-5621-4444-ac05-d35238c20cfc,99.549,San Diego
+Device_41,cb5ae83b-7713-455b-a543-1e69de0e0fb0,99.592,Houston
+Device_42,1805ed74-30d4-42f9-b313-aa9e27fbcaf0,99.852,Chicago
+Device_43,27f8a6fa-4ba7-42a2-a506-8c4a06db3b2b,99.6,Houston
+Device_44,1db45ca0-1f6f-49f9-968d-16dba3c8ea59,99.759,Houston
+Device_45,49606ac3-e363-4354-87bb-5001eb9d8b0b,99.901,Los Angeles
+Device_46,118003ad-a4da-4a4d-9626-9b7f1360a289,99.654,New York
+Device_47,5336c00e-44a0-4fcc-bb1b-90353dfe1683,99.681,Houston
+Device_48,d2c1cd84-dfc6-4afa-9bfa-7407478c62a1,99.854,Chicago
+Device_49,35d6ac45-3aea-41c8-bf1e-41bb45118d73,99.949,Chicago
+Device_50,8c61e732-cb59-4667-ac51-5e0982f2e032,99.823,San Antonio
+Device_51,d72fd203-7c48-4e39-b081-0144dd45e8c8,99.936,San Diego
+Device_52,0f4f86d9-0c32-495a-907b-cd35c308fa77,99.695,Phoenix
+Device_53,0a6b96c6-ea55-4da6-bc63-ab91a018582b,99.586,New York
+Device_54,340b540a-a795-4709-bcc8-cdcc066ccf4e,99.648,San Jose
+Device_55,c64b59d2-53a0-4033-8dd7-0e9c553626a2,99.742,Dallas
+Device_56,62c45d04-86e9-44e1-9f99-76bc15784bce,99.743,Houston
+Device_57,3e5db320-3807-4c5f-8042-d5a16ff447c2,99.517,New York
+Device_58,25db4874-2850-4f12-9af2-bdac6a31c2dc,99.531,Los Angeles
+Device_59,1c362f05-bfd8-4737-9ad9-666b634f4d63,99.624,San Diego
+Device_60,9a18af42-af5b-4b8c-a846-61308edeb541,99.873,Chicago
+Device_61,1328cbb7-f55b-48f0-8fad-f18354c1330d,99.692,Philadelphia
+Device_62,31d8cf04-4632-488b-8f4c-0a7b8b6702d0,99.933,San Jose
+Device_63,223add5a-7a57-4e2e-80c6-db3deecb869c,99.856,Philadelphia
+Device_64,a66bda45-44d8-4423-a23a-575227064bbf,99.655,Chicago
+Device_65,88e91202-376a-4c90-a97d-59b710bfbb37,99.517,Phoenix
+Device_66,76b7fe85-bfae-427c-8315-5420bf43bfa3,99.68,Philadelphia
+Device_67,8d48c6a9-6561-4b15-9c8e-fa6107180cc4,99.932,Phoenix
+Device_68,97371cc6-03f5-4e10-95f5-925355bc5af9,99.64,San Jose
+Device_69,a77243be-f609-4f1b-a65a-c90e8cca334b,99.6,Philadelphia
+Device_70,149d8f1c-6c12-4580-bcc3-06958c8db09b,99.9,San Jose
+Device_71,441f4a6f-58a2-41ec-b06f-024691faa456,99.594,Philadelphia
+Device_72,57d330fd-d88d-4fcd-b466-4d06af980055,99.901,Dallas
+Device_73,1243d912-a295-4d9a-bcca-35fc4d15abf3,99.962,Philadelphia
+Device_74,17f853aa-8eb5-4726-8971-b8fcba725306,99.67,Dallas
+Device_75,531109bc-2e63-449c-a78e-1a9a317eeecb,99.506,Dallas
+Device_76,4b3a4e63-fc65-4889-90bf-370a29c07fba,99.761,Dallas
+Device_77,f3695d9c-de96-4803-aeba-5962797f4d5f,99.76,Houston
+Device_78,4930e819-e797-47ff-b408-f5ea448b79dd,99.647,Chicago
+Device_79,38dc586f-de91-4711-b225-1a9cb3aefc4f,99.87,Dallas
+Device_80,1df3587f-df8d-4f21-b301-6f0be868d8bf,99.655,Houston
+Device_81,995a9c5a-bb6d-4311-a63a-9c4ea53c4f59,99.777,Chicago
+Device_82,93ea8e8d-1c33-4d0e-965c-ac2c0e02d017,99.62,Los Angeles
+Device_83,b234c81d-23c5-40e3-9cd2-18c45e1a09c5,99.851,Houston
+Device_84,a05d7263-7144-4843-8a69-393cb623052e,99.607,Philadelphia
+Device_85,06c93e0e-0479-42df-9be1-e4e388e50239,99.563,New York
+Device_86,31c3184c-ecd5-4261-b992-07f2a1712a05,99.925,Houston
+Device_87,fa32810b-f4ba-457e-8e5e-9d4d218719a7,99.904,New York
+Device_88,ee635ccc-58fe-4889-918c-e9999b68292a,99.83,Phoenix
+Device_89,b26510b7-c456-4ed5-90f3-fa4ac3df8fb9,99.604,Houston
+Device_90,72522a45-5295-4938-a61a-97cfc2c48a97,99.657,Phoenix
+Device_91,6c788d88-3ac5-4acf-8495-34f3ce8adee1,99.631,Los Angeles
+Device_92,5145ade6-700b-4665-9047-5a61f678c6f9,99.856,New York
+Device_93,aa7ccaa5-3e70-463b-a983-2b2ec84d474e,99.74,Dallas
+Device_94,17ce50dc-e165-4a2e-8593-9821af4b9188,99.509,Phoenix
+Device_95,165d5754-fa27-433c-a378-4b3a06ef4edd,99.537,Philadelphia
+Device_96,d37c1ba8-3c97-4873-a693-4e307f802fc4,99.993,Phoenix
+Device_97,b4a49753-c80b-49e8-b07c-4ea0d7b857a7,99.868,Los Angeles
+Device_98,0704ddb2-3138-4b57-82bb-7d68308d2def,99.73,Chicago
+Device_99,ff7ed725-1b3a-4f43-b0bc-c24944ca63fa,99.939,Chicago
+Device_100,4e2bafda-ffa9-412f-b7b3-b0a14a5925c0,99.598,New York

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Status Dashboard</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        header {
+            background-color: var(--header-bg);
+            color: var(--header-color);
+            text-align: center;
+            padding: 1em;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .theme-switcher {
+            text-align: right;
+            margin: 10px 20px;
+        }
+        .device-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+        }
+        .device-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            position: relative;
+        }
+        .device-circle:hover {
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+        }
+        .tooltip {
+            visibility: hidden;
+            width: 120px;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 120%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: black transparent transparent transparent;
+        }
+        .device-circle:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .device-info-box {
+            display: none;
+            padding: 20px;
+            background-color: #fff;
+            color: var(--text-color);
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        .device-info-box h3 {
+            margin-top: 0;
+        }
+        /* Default Bright Theme */
+        :root {
+            --header-bg: #4CAF50;
+            --header-color: white;
+            --bg-color: #f4f4f9;
+            --text-color: black;
+        }
+
+        /* Dark Theme */
+        body.dark-theme {
+            --header-bg: #333;
+            --header-color: white;
+            --bg-color: #2c2c2c;
+            --text-color: white;
+        }
+
+        /* Green Theme */
+        body.green-theme {
+            --header-bg: #003300;
+            --header-color: white;
+            --bg-color: #001a00;
+            --text-color: #66ff66;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        .device-info-box.dark-theme {
+            background-color: #444;
+        }
+    </style>
+</head>
+<body>
+    <header>Device Status Dashboard</header>
+    <div class="theme-switcher">
+        <label for="theme-select">Choose Theme: </label>
+        <select id="theme-select" onchange="switchTheme(this.value)">
+            <option value="default">Bright</option>
+            <option value="dark">Dark</option>
+            <option value="green">Green</option>
+        </select>
+    </div>
+    <div class="device-container">
+        {% for device in devices %}
+        <div class="device-circle" style="
+            background-color: 
+                {% if device.current_op_status >= 100 %} green
+                {% elif device.current_op_status <= 0 %} red
+                {% else %} orange
+                {% endif %}
+            ;"
+             onmouseover="showTooltip(this, '{{ device.device_name }}')"
+             onclick="showDeviceInfo('{{ device.device_id }}')">
+            {{ device.current_op_status }}
+            <div class="tooltip" id="tooltip-{{ device.device_id }}">{{ device.device_name }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="device-info-box" class="device-info-box">
+        <h3>Device Info</h3>
+        <div id="device-info-content"></div>
+        <button onclick="closeDeviceInfo()">Close</button>
+    </div>
+
+    <script>
+        function switchTheme(theme) {
+            document.body.className = '';
+            const infoBox = document.getElementById('device-info-box');
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+                infoBox.classList.add('dark-theme');
+            } else if (theme === 'green') {
+                document.body.classList.add('green-theme');
+                infoBox.classList.remove('dark-theme');
+            } else {
+                infoBox.classList.remove('dark-theme');
+            }
+            localStorage.setItem('theme', theme);
+        }
+
+        function showTooltip(element, device_name) {
+            const tooltip = element.querySelector('.tooltip');
+            tooltip.innerHTML = device_name;
+        }
+
+        function showDeviceInfo(device_id) {
+            fetch(`/device/${device_id}`)
+                .then(response => response.json())
+                .then(data => {
+                    const deviceInfoBox = document.getElementById('device-info-box');
+                    const deviceInfoContent = document.getElementById('device-info-content');
+                    deviceInfoContent.innerHTML = `
+                        <p><strong>Device Name:</strong> ${data.device_name}</p>
+                        <p><strong>Device ID:</strong> ${data.device_id}</p>
+                        <p><strong>Uptime:</strong> ${data.up_time}%</p>
+                        <p><strong>Location:</strong> ${data.location}</p>
+                    `;
+                    deviceInfoBox.style.display = 'block';
+                });
+        }
+
+        function closeDeviceInfo() {
+            document.getElementById('device-info-box').style.display = 'none';
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                switchTheme(savedTheme);
+                document.getElementById('theme-select').value = savedTheme;
+            }
+        });
+    </script>
+</body>
+</html>
