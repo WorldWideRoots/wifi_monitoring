@@ -21,6 +21,9 @@
             text-align: center;
         }
         .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -28,20 +31,21 @@
         }
         .toggle-switch {
             position: relative;
-            width: 60px;
-            height: 30px;
+            width: 40px;
+            height: 20px;
             background-color: #ccc;
-            border-radius: 15px;
+            border-radius: 10px;
             cursor: pointer;
             transition: background-color 0.3s;
+            margin: 0 10px;
         }
         .toggle-switch::before {
             content: '';
             position: absolute;
-            top: 5px;
-            left: 5px;
-            width: 20px;
-            height: 20px;
+            top: 3px;
+            left: 3px;
+            width: 14px;
+            height: 14px;
             background-color: #fff;
             border-radius: 50%;
             transition: left 0.3s;
@@ -50,21 +54,38 @@
             background-color: #444;
         }
         .toggle-switch.dark::before {
-            left: 35px;
+            left: 23px;
         }
         #dashboard {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
+            flex-direction: column;
+            justify-content: flex-start;
             padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
         }
+        .device-section {
+            margin-bottom: 20px;
+            max-height: 300px; /* Adjust as needed */
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .device-section h2 {
+            text-align: left;
+            margin-bottom: 10px;
+            margin-left: 10px;
+        }
+        .device-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
         .device {
-            width: 60px;
-            height: 60px;
-            margin: 10px;
+            width: 50px;  /* Slightly smaller to accommodate more devices */
+            height: 50px;
+            margin: 5px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -101,7 +122,7 @@
             transform: translateX(-50%);
             opacity: 0;
             transition: opacity 0.3s;
-            font-size: 14px;
+            font-size: 12px;
             white-space: nowrap;
         }
         .device:hover .tooltip {
@@ -140,18 +161,21 @@
             text-decoration: none;
             cursor: pointer;
         }
-        @media (max-width: 768px) {
-            .device {
-                width: 50px;
-                height: 50px;
-                font-size: 18px;
-            }
+        .modal-content p {
+            color: var(--text-color);
         }
-        @media (max-width: 480px) {
+        @media (max-width: 768px) {
             .device {
                 width: 40px;
                 height: 40px;
                 font-size: 16px;
+            }
+        }
+        @media (max-width: 480px) {
+            .device {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
             }
         }
         :root {
@@ -202,6 +226,20 @@
             .then(response => response.json())
             .then(data => {
                 const dashboard = document.getElementById('dashboard');
+
+                const sections = {
+                    red: document.createElement('div'),
+                    yellow: document.createElement('div'),
+                    green: document.createElement('div'),
+                };
+
+                sections.red.className = 'device-section';
+                sections.red.innerHTML = '<h2>Critical Devices</h2><div class="device-list"></div>';
+                sections.yellow.className = 'device-section';
+                sections.yellow.innerHTML = '<h2>Warning Devices</h2><div class="device-list"></div>';
+                sections.green.className = 'device-section';
+                sections.green.innerHTML = '<h2>Healthy Devices</h2><div class="device-list"></div>';
+
                 data.forEach(device => {
                     const deviceElement = document.createElement('div');
                     deviceElement.className = `device ${device.color}`;
@@ -224,6 +262,7 @@
                         document.getElementById('device-details').innerHTML = `
                             <h3>Details for ${device.name}:</h3>
                             <p>ID: ${device.id}</p>
+                            <p>MAC Address:
                             <p>MAC Address: ${device.macAddress}</p>
                             <p>AP Type: ${device.apType}</p>
                             <p>Location: ${device.location}</p>
@@ -235,8 +274,12 @@
                         document.getElementById('device-modal').style.display = "flex";
                     });
 
-                    dashboard.appendChild(deviceElement);
+                    sections[device.color].querySelector('.device-list').appendChild(deviceElement);
                 });
+
+                dashboard.appendChild(sections.red);
+                dashboard.appendChild(sections.yellow);
+                dashboard.appendChild(sections.green);
             });
 
         document.querySelector('.close').addEventListener('click', function() {

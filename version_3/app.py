@@ -1,6 +1,11 @@
 from flask import Flask, jsonify, render_template
+import pandas as pd 
 
 app = Flask(__name__)
+
+basic_info_df = pd.read_csv('basic_info.csv')
+op_status_df = pd.read_csv('op_status.csv')
+merged_df = pd.merge(basic_info_df, op_status_df, on=['name', 'id', 'macAddress'])
 
 # Sample data for the devices
 device_data = [
