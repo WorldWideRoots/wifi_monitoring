@@ -20,10 +20,37 @@
             margin: 0;
             text-align: center;
         }
-        #theme-selector {
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin: 20px auto;
-            text-align: right;
-            padding-right: 30px;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background-color: #ccc;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 20px;
+            height: 20px;
+            background-color: #fff;
+            border-radius: 50%;
+            transition: left 0.3s;
+        }
+        .toggle-switch.dark {
+            background-color: #444;
+        }
+        .toggle-switch.dark::before {
+            left: 35px;
         }
         #dashboard {
             display: flex;
@@ -44,7 +71,8 @@
             align-items: center;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s, background-color 0.3s;
+            position: relative;
         }
         .device.green {
             background-color: #28a745;
@@ -57,27 +85,83 @@
             background-color: #dc3545;
         }
         .device:hover {
-            transform: scale(1.1);
+            transform: scale(1.2);
         }
-        #details {
-            margin-top: 30px;
+        .tooltip {
+            visibility: hidden;
+            background-color: rgba(0, 0, 0, 0.75);
+            color: #fff;
             text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+            white-space: nowrap;
         }
-        #details h3 {
-            margin-bottom: 20px;
+        .device:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
         }
-
-        /* Bright Theme */
+        #device-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.75);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .device {
+                width: 50px;
+                height: 50px;
+                font-size: 18px;
+            }
+        }
+        @media (max-width: 480px) {
+            .device {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+        }
         :root {
             --bg-color: #f5f5f5;
             --text-color: #333;
             --header-bg-color: #28a745;
             --header-text-color: #fff;
         }
-
-        /* Dark Theme */
         body.dark-mode {
-            --bg-color: #333;
+            --bg-color: #222;
             --text-color: #f5f5f5;
             --header-bg-color: #444;
             --header-text-color: #fff;
@@ -88,20 +172,26 @@
 
     <h1>Device Status Dashboard</h1>
 
-    <div id="theme-selector">
-        <label for="theme-toggle">Choose Theme:</label>
-        <select id="theme-toggle">
-            <option value="light">Bright</option>
-            <option value="dark">Dark</option>
-        </select>
+    <div class="theme-toggle">
+        <span>Bright</span>
+        <div class="toggle-switch" id="theme-toggle"></div>
+        <span>Dark</span>
     </div>
 
     <div id="dashboard"></div>
     <div id="details"></div>
 
+    <div id="device-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="device-details"></div>
+        </div>
+    </div>
+
     <script>
-        document.getElementById('theme-toggle').addEventListener('change', function() {
-            if (this.value === 'dark') {
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            this.classList.toggle('dark');
+            if (this.classList.contains('dark')) {
                 document.body.classList.add('dark-mode');
             } else {
                 document.body.classList.remove('dark-mode');
@@ -115,11 +205,23 @@
                 data.forEach(device => {
                     const deviceElement = document.createElement('div');
                     deviceElement.className = `device ${device.color}`;
-                    deviceElement.textContent = device.connectivityStatus;
-                    deviceElement.title = `Name: ${device.name}\nStatus: ${device.connectivityStatus}\nTimestamp: ${device.timestamp}`;
+                    deviceElement.dataset.name = device.name;
+                    deviceElement.dataset.id = device.id;
+                    deviceElement.dataset.macAddress = device.macAddress;
+                    deviceElement.dataset.apType = device.apType;
+                    deviceElement.dataset.location = device.location;
+                    deviceElement.dataset.upTime = device.upTime;
+                    deviceElement.dataset.connectedTime = device.connectedTime;
+                    deviceElement.dataset.connectivityStatus = device.connectivityStatus;
+                    deviceElement.dataset.timestamp = device.timestamp;
+
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip';
+                    tooltip.textContent = `Name: ${device.name}\nStatus: ${device.connectivityStatus}`;
+                    deviceElement.appendChild(tooltip);
 
                     deviceElement.addEventListener('click', () => {
-                        document.getElementById('details').innerHTML = `
+                        document.getElementById('device-details').innerHTML = `
                             <h3>Details for ${device.name}:</h3>
                             <p>ID: ${device.id}</p>
                             <p>MAC Address: ${device.macAddress}</p>
@@ -130,11 +232,16 @@
                             <p>Connectivity Status: ${device.connectivityStatus}</p>
                             <p>Timestamp: ${device.timestamp}</p>
                         `;
+                        document.getElementById('device-modal').style.display = "flex";
                     });
 
                     dashboard.appendChild(deviceElement);
                 });
             });
+
+        document.querySelector('.close').addEventListener('click', function() {
+            document.getElementById('device-modal').style.display = "none";
+        });
     </script>
 
 </body>
