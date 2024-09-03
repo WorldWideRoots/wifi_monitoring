@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Device Status Dashboard</title>
     <style>
+        /* Existing styles from your current index.html */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -66,7 +67,7 @@
         }
         .device-section {
             margin-bottom: 20px;
-            max-height: 300px; /* Adjust as needed */
+            max-height: 300px;
             overflow-y: auto;
             border: 1px solid #ddd;
             padding: 10px;
@@ -83,7 +84,7 @@
             gap: 10px;
         }
         .device {
-            width: 50px;  /* Slightly smaller to accommodate more devices */
+            width: 50px;
             height: 50px;
             margin: 5px;
             border-radius: 50%;
@@ -194,7 +195,7 @@
 </head>
 <body>
 
-    <h1>Device Status Dashboard</h1>
+    <h1 id="site-title"></h1>
 
     <div class="theme-toggle">
         <span>Bright</span>
@@ -213,6 +214,7 @@
     </div>
 
     <script>
+        // Theme toggle logic
         document.getElementById('theme-toggle').addEventListener('click', function() {
             this.classList.toggle('dark');
             if (this.classList.contains('dark')) {
@@ -222,7 +224,11 @@
             }
         });
 
-        fetch('/data')
+        // Fetch device data based on site name in URL
+        const siteName = window.location.pathname.split('/').pop();
+        document.getElementById('site-title').textContent = `${siteName} Device Status`;
+
+        fetch(`/device-data/${siteName}`)
             .then(response => response.json())
             .then(data => {
                 const dashboard = document.getElementById('dashboard');
@@ -253,16 +259,17 @@
                     deviceElement.dataset.connectivityStatus = device.connectivityStatus;
                     deviceElement.dataset.timestamp = device.timestamp;
 
+                    // Create a tooltip for the device
                     const tooltip = document.createElement('div');
                     tooltip.className = 'tooltip';
                     tooltip.textContent = `Name: ${device.name}\nStatus: ${device.connectivityStatus}`;
                     deviceElement.appendChild(tooltip);
 
+                    // Add click event to show device details in a modal
                     deviceElement.addEventListener('click', () => {
                         document.getElementById('device-details').innerHTML = `
                             <h3>Details for ${device.name}:</h3>
                             <p>ID: ${device.id}</p>
-                            <p>MAC Address:
                             <p>MAC Address: ${device.macAddress}</p>
                             <p>AP Type: ${device.apType}</p>
                             <p>Location: ${device.location}</p>
@@ -274,14 +281,18 @@
                         document.getElementById('device-modal').style.display = "flex";
                     });
 
+                    // Append the device element to the appropriate section based on color
                     sections[device.color].querySelector('.device-list').appendChild(deviceElement);
                 });
 
+                // Append the sections to the dashboard
                 dashboard.appendChild(sections.red);
                 dashboard.appendChild(sections.yellow);
                 dashboard.appendChild(sections.green);
-            });
+            })
+            .catch(error => console.error('Error fetching device data:', error));
 
+        // Modal close functionality
         document.querySelector('.close').addEventListener('click', function() {
             document.getElementById('device-modal').style.display = "none";
         });
@@ -289,3 +300,4 @@
 
 </body>
 </html>
+
