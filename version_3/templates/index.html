@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Device Status Dashboard</title>
+    <title>{{ site_name }} Device Status</title>
     <style>
-        /* Existing styles from your current index.html */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -20,6 +19,19 @@
             padding: 20px;
             margin: 0;
             text-align: center;
+        }
+        .return-button {
+            margin: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .return-button:hover {
+            background-color: #218838;
         }
         .theme-toggle {
             position: absolute;
@@ -57,13 +69,17 @@
         .toggle-switch.dark::before {
             left: 23px;
         }
-        #dashboard {
+        .summary {
+            margin: 10px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
             display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
+            justify-content: space-around;
+        }
+        .summary-item {
+            padding: 10px;
+            font-weight: bold;
         }
         .device-section {
             margin-bottom: 20px;
@@ -72,11 +88,6 @@
             border: 1px solid #ddd;
             padding: 10px;
             border-radius: 8px;
-        }
-        .device-section h2 {
-            text-align: left;
-            margin-bottom: 10px;
-            margin-left: 10px;
         }
         .device-list {
             display: flex;
@@ -165,20 +176,6 @@
         .modal-content p {
             color: var(--text-color);
         }
-        @media (max-width: 768px) {
-            .device {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
-        }
-        @media (max-width: 480px) {
-            .device {
-                width: 35px;
-                height: 35px;
-                font-size: 14px;
-            }
-        }
         :root {
             --bg-color: #f5f5f5;
             --text-color: #333;
@@ -195,12 +192,20 @@
 </head>
 <body>
 
-    <h1 id="site-title"></h1>
+    <h1>{{ site_name }} Device Status</h1>
+
+    <button class="return-button" onclick="window.location.href='/'">Return to Overview</button>
 
     <div class="theme-toggle">
         <span>Bright</span>
         <div class="toggle-switch" id="theme-toggle"></div>
         <span>Dark</span>
+    </div>
+
+    <div class="summary">
+        <div class="summary-item" id="healthy-count">Healthy: 0</div>
+        <div class="summary-item" id="warning-count">Warning: 0</div>
+        <div class="summary-item" id="critical-count">Critical: 0</div>
     </div>
 
     <div id="dashboard"></div>
@@ -215,82 +220,118 @@
 
     <script>
         // Theme toggle logic
-        document.getElementById('theme-toggle').addEventListener('click', function() {
-            this.classList.toggle('dark');
-            if (this.classList.contains('dark')) {
+        function toggleTheme() {
+            const themeToggle = document.getElementById('theme-toggle');
+            themeToggle.classList.toggle('dark');
+            if (themeToggle.classList.contains('dark')) {
                 document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
             } else {
                 document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'bright');
             }
-        });
+        }
 
-        // Fetch device data based on site name in URL
-        const siteName = window.location.pathname.split('/').pop();
-        document.getElementById('site-title').textContent = `${siteName} Device Status`;
+        // Function to initialize the theme based on saved state in localStorage
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'bright';
+            const themeToggle = document.getElementById('theme-toggle');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.classList.add('dark');
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeToggle.classList.remove('dark');
+            }
+        }
 
-        fetch(`/device-data/${siteName}`)
-            .then(response => response.json())
-            .then(data => {
-                const dashboard = document.getElementById('dashboard');
+        // Initialize the theme on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeTheme();
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
 
-                const sections = {
-                    red: document.createElement('div'),
-                    yellow: document.createElement('div'),
-                    green: document.createElement('div'),
-                };
+            // Fetch device data based on site name in URL
+            const siteName = "{{ site_name }}"; // Passed from Flask context
+            document.getElementById('site-title').textContent = `${siteName} Device Status`;
 
-                sections.red.className = 'device-section';
-                sections.red.innerHTML = '<h2>Critical Devices</h2><div class="device-list"></div>';
-                sections.yellow.className = 'device-section';
-                sections.yellow.innerHTML = '<h2>Warning Devices</h2><div class="device-list"></div>';
-                sections.green.className = 'device-section';
-                sections.green.innerHTML = '<h2>Healthy Devices</h2><div class="device-list"></div>';
+            fetch(`/device-data/${siteName}`)
+                .then(response => response.json())
+                .then(data => {
+                    const dashboard = document.getElementById('dashboard');
 
-                data.forEach(device => {
-                    const deviceElement = document.createElement('div');
-                    deviceElement.className = `device ${device.color}`;
-                    deviceElement.dataset.name = device.name;
-                    deviceElement.dataset.id = device.id;
-                    deviceElement.dataset.macAddress = device.macAddress;
-                    deviceElement.dataset.apType = device.apType;
-                    deviceElement.dataset.location = device.location;
-                    deviceElement.dataset.upTime = device.upTime;
-                    deviceElement.dataset.connectedTime = device.connectedTime;
-                    deviceElement.dataset.connectivityStatus = device.connectivityStatus;
-                    deviceElement.dataset.timestamp = device.timestamp;
+                    const sections = {
+                        red: document.createElement('div'),
+                        yellow: document.createElement('div'),
+                    };
 
-                    // Create a tooltip for the device
-                    const tooltip = document.createElement('div');
-                    tooltip.className = 'tooltip';
-                    tooltip.textContent = `Name: ${device.name}\nStatus: ${device.connectivityStatus}`;
-                    deviceElement.appendChild(tooltip);
+                    sections.red.className = 'device-section';
+                    sections.red.innerHTML = '<h2>Critical Devices</h2><div class="device-list"></div>';
+                    sections.yellow.className = 'device-section';
+                    sections.yellow.innerHTML = '<h2>Warning Devices</h2><div class="device-list"></div>';
 
-                    // Add click event to show device details in a modal
-                    deviceElement.addEventListener('click', () => {
-                        document.getElementById('device-details').innerHTML = `
-                            <h3>Details for ${device.name}:</h3>
-                            <p>ID: ${device.id}</p>
-                            <p>MAC Address: ${device.macAddress}</p>
-                            <p>AP Type: ${device.apType}</p>
-                            <p>Location: ${device.location}</p>
-                            <p>Uptime: ${device.upTime}</p>
-                            <p>Connected Time: ${device.connectedTime}</p>
-                            <p>Connectivity Status: ${device.connectivityStatus}</p>
-                            <p>Timestamp: ${device.timestamp}</p>
-                        `;
-                        document.getElementById('device-modal').style.display = "flex";
+                    let healthyCount = 0, warningCount = 0, criticalCount = 0;
+
+                    data.forEach(device => {
+                        if (device.color === 'green') {
+                            healthyCount++;
+                            return; // Skip displaying healthy devices
+                        }
+
+                        const deviceElement = document.createElement('div');
+                        deviceElement.className = `device ${device.color}`;
+                        deviceElement.dataset.name = device.name;
+                        deviceElement.dataset.id = device.id;
+                        deviceElement.dataset.macAddress = device.macAddress;
+                        deviceElement.dataset.apType = device.apType;
+                        deviceElement.dataset.location = device.location;
+                        deviceElement.dataset.upTime = device.upTime;
+                        deviceElement.dataset.connectedTime = device.connectedTime;
+                        deviceElement.dataset.connectivityStatus = device.connectivityStatus;
+                        deviceElement.dataset.timestamp = device.timestamp;
+
+                        // Create a tooltip for the device
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'tooltip';
+                        tooltip.textContent = `Name: ${device.name}\nStatus: ${device.connectivityStatus}`;
+                        deviceElement.appendChild(tooltip);
+
+                        // Add click event to show device details in a modal
+                        deviceElement.addEventListener('click', () => {
+                            document.getElementById('device-details').innerHTML = `
+                                <h3>Details for ${device.name}:</h3>
+                                <p>ID: ${device.id}</p>
+                                <p>MAC Address: ${device.macAddress}</p>
+                                <p>AP Type: ${device.apType}</p>
+                                <p>Location: ${device.location}</p>
+                                <p>Uptime: ${device.upTime}</p>
+                                <p>Connected Time: ${device.connectedTime}</p>
+                                <p>Connectivity Status: ${device.connectivityStatus}</p>
+                                <p>Timestamp: ${device.timestamp}</p>
+                            `;
+                            document.getElementById('device-modal').style.display = "flex";
+                        });
+
+                        // Append the device element to the appropriate section based on status
+                        if (device.color === 'red') {
+                            criticalCount++;
+                            sections.red.querySelector('.device-list').appendChild(deviceElement);
+                        } else if (device.color === 'yellow') {
+                            warningCount++;
+                            sections.yellow.querySelector('.device-list').appendChild(deviceElement);
+                        }
                     });
 
-                    // Append the device element to the appropriate section based on color
-                    sections[device.color].querySelector('.device-list').appendChild(deviceElement);
-                });
+                    // Update the summary counts
+                    document.getElementById('healthy-count').textContent = `Healthy: ${healthyCount}`;
+                    document.getElementById('warning-count').textContent = `Warning: ${warningCount}`;
+                    document.getElementById('critical-count').textContent = `Critical: ${criticalCount}`;
 
-                // Append the sections to the dashboard
-                dashboard.appendChild(sections.red);
-                dashboard.appendChild(sections.yellow);
-                dashboard.appendChild(sections.green);
-            })
-            .catch(error => console.error('Error fetching device data:', error));
+                    // Append sections to the dashboard if they contain devices
+                    if (criticalCount > 0) dashboard.appendChild(sections.red);
+                    if (warningCount > 0) dashboard.appendChild(sections.yellow);
+                })
+                .catch(error => console.error('Error fetching device data:', error));
+        });
 
         // Modal close functionality
         document.querySelector('.close').addEventListener('click', function() {
@@ -300,4 +341,3 @@
 
 </body>
 </html>
-

@@ -1,0 +1,342 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Overview</title>
+    <style>
+        /* Existing styles */
+        /* Add your CSS styles here */
+        #chart-container {
+            width: 400px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Site Status Overview</h1>
+
+    <div class="theme-toggle">
+        <span>Bright</span>
+        <div class="toggle-switch" id="theme-toggle"></div>
+        <span>Dark</span>
+    </div>
+
+    <div id="sites-dashboard"></div>
+
+    <!-- Add a container for the chart -->
+    <div id="chart-container">
+        <canvas id="statusChart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Existing JavaScript code for theme and data fetching
+
+        // Fetch site data and populate the dashboard and chart
+        fetch('/site-data')
+            .then(response => response.json())
+            .then(data => {
+                const dashboard = document.getElementById('sites-dashboard');
+                let healthyCount = 0, warningCount = 0, criticalCount = 0;
+
+                data.forEach(site => {
+                    // Calculate aggregated data for the chart
+                    healthyCount += site.healthyDevices;
+                    warningCount += site.warningDevices;
+                    criticalCount += site.criticalDevices;
+
+                    // Existing site rendering logic
+                });
+
+                // Create the pie chart
+                const ctx = document.getElementById('statusChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Healthy', 'Warning', 'Critical'],
+                        datasets: [{
+                            data: [healthyCount, warningCount, criticalCount],
+                            backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += context.parsed;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching site data:', error));
+    </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Overview</title>
+    <style>
+        /* Common styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        h1 {
+            background-color: var(--header-bg-color);
+            color: var(--header-text-color);
+            padding: 20px;
+            margin: 0;
+            text-align: center;
+        }
+        .toggle-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .toggle-button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .toggle-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* View 1: Sites as Dots and Pie Chart */
+        #view1 {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        #sites-dashboard {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .site {
+            width: 60px;
+            height: 60px;
+            margin: 10px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+            background-color: #6c757d;
+            color: white;
+            position: relative;
+        }
+        .site.green {
+            background-color: #28a745;
+        }
+        .site.yellow {
+            background-color: #ffc107;
+            color: black;
+        }
+        .site.red {
+            background-color: #dc3545;
+        }
+        .site:hover {
+            transform: scale(1.2);
+        }
+        #chart-container {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* View 2: Aggregated Device Sections */
+        #view2 {
+            display: none; /* Hidden by default; shown on toggle */
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+        }
+        .section {
+            width: 30%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .section h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Site Status Overview</h1>
+
+    <div class="toggle-container">
+        <button class="toggle-button" id="toggle-view">Switch to Aggregated View</button>
+    </div>
+
+    <!-- View 1: Sites as Dots with Aggregated Summary Pie Chart -->
+    <div id="view1">
+        <div id="sites-dashboard">
+            <!-- Site dots will be dynamically populated here -->
+        </div>
+        <div id="chart-container">
+            <canvas id="statusChart"></canvas>
+        </div>
+    </div>
+
+    <!-- View 2: Aggregated Devices in Three Sections -->
+    <div id="view2">
+        <div class="section" id="critical-section">
+            <h2>Critical Devices</h2>
+            <!-- Critical devices will be listed here -->
+        </div>
+        <div class="section" id="warning-section">
+            <h2>Warning Devices</h2>
+            <!-- Warning devices will be listed here -->
+        </div>
+        <div class="section" id="healthy-section">
+            <h2>Healthy Devices</h2>
+            <!-- Healthy devices will be listed here -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Toggle view function
+        document.getElementById('toggle-view').addEventListener('click', () => {
+            const view1 = document.getElementById('view1');
+            const view2 = document.getElementById('view2');
+            const button = document.getElementById('toggle-view');
+            if (view1.style.display === 'none') {
+                view1.style.display = 'flex';
+                view2.style.display = 'none';
+                button.textContent = 'Switch to Aggregated View';
+            } else {
+                view1.style.display = 'none';
+                view2.style.display = 'flex';
+                button.textContent = 'Switch to Dots View';
+            }
+        });
+
+        // Fetch site data and populate both views
+        fetch('/site-data')
+            .then(response => response.json())
+            .then(data => {
+                const dashboard = document.getElementById('sites-dashboard');
+                let healthyCount = 0, warningCount = 0, criticalCount = 0;
+
+                // Populate View 1: Sites as Dots
+                data.forEach(site => {
+                    const siteElement = document.createElement('div');
+                    siteElement.className = 'site';
+                    siteElement.textContent = site.siteName;
+
+                    if (site.criticalDevices > 0) {
+                        siteElement.classList.add('red');
+                    } else if (site.warningDevices > 0) {
+                        siteElement.classList.add('yellow');
+                    } else {
+                        siteElement.classList.add('green');
+                    }
+
+                    // Add tooltip and click event
+                    dashboard.appendChild(siteElement);
+
+                    // Aggregate data for the pie chart
+                    healthyCount += site.healthyDevices;
+                    warningCount += site.warningDevices;
+                    criticalCount += site.criticalDevices;
+                });
+
+                // Create the pie chart for View 1
+                const ctx = document.getElementById('statusChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Healthy', 'Warning', 'Critical'],
+                        datasets: [{
+                            data: [healthyCount, warningCount, criticalCount],
+                            backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += context.parsed;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Populate View 2: Aggregated Device Sections
+                const criticalSection = document.getElementById('critical-section');
+                const warningSection = document.getElementById('warning-section');
+                const healthySection = document.getElementById('healthy-section');
+
+                // Populate sections based on aggregated data
+                data.forEach(site => {
+                    site.criticalDevices.forEach(device => {
+                        const deviceElement = document.createElement('div');
+                        deviceElement.textContent = device.name; // Add more details as needed
+                        criticalSection.appendChild(deviceElement);
+                    });
+                    site.warningDevices.forEach(device => {
+                        const deviceElement = document.createElement('div');
+                        deviceElement.textContent = device.name;
+                        warningSection.appendChild(deviceElement);
+                    });
+                    site.healthyDevices.forEach(device => {
+                        const deviceElement = document.createElement('div');
+                        deviceElement.textContent = device.name;
+                        healthySection.appendChild(deviceElement);
+                    });
+                });
+            })
+            .catch(error => console.error('Error fetching site data:', error));
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} Device Status</title>
+    <style>
+        /* Existing styles */
+        #chart-container {
+            width: 400px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>{{ site_name }} Device Status</h1>
+
+    <button class="return-button" onclick="window.location.href='/'">Return to Overview</button>
+
+    <div class="theme-toggle">
+        <span>Bright</span>
+        <div class="toggle-switch" id="theme-toggle"></div>
+        <span>Dark</span>
+    </div>
+
+    <div class="summary">
+        <div class="summary-item" id="healthy-count">Healthy: 0</div>
+        <div class="summary-item" id="warning-count">Warning: 0</div>
+        <div class="summary-item" id="critical-count">Critical: 0</div>
+    </div>
+
+    <div id="dashboard"></div>
+    <div id="details"></div>
+
+    <!-- Add a container for the chart -->
+    <div id="chart-container">
+        <canvas id="siteStatusChart"></canvas>
+    </div>
+
+    <div id="device-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="device-details"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Existing JavaScript code for theme and data fetching
+
+        // Fetch device data for the specific site
+        const siteName = "{{ site_name }}"; // Passed from Flask context
+        fetch(`/device-data/${siteName}`)
+            .then(response => response.json())
+            .then(data => {
+                const dashboard = document.getElementById('dashboard');
+                let healthyCount = 0, warningCount = 0, criticalCount = 0;
+
+                data.forEach(device => {
+                    if (device.color === 'green') {
+                        healthyCount++;
+                    } else if (device.color === 'yellow') {
+                        warningCount++;
+                    } else if (device.color === 'red') {
+                        criticalCount++;
+                    }
+
+                    // Existing device rendering logic
+                });
+
+                // Create the pie chart for the individual site
+                const ctx = document.getElementById('siteStatusChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Healthy', 'Warning', 'Critical'],
+                        datasets: [{
+                            data: [healthyCount, warningCount, criticalCount],
+                            backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += context.parsed;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching device data:', error));
+
+        // Existing modal close functionality
+        document.querySelector('.close').addEventListener('click', function() {
+            document.getElementById('device-modal').style.display = "none";
+        });
+    </script>
+
+</body>
+</html>
+
+
+<!-- Line Chart Container -->
+<div id="line-chart-container">
+    <canvas id="connectivityTrendChart"></canvas>
+</div>
+
+<script>
+    // Fetch historical connectivity data
+    fetch(`/connectivity-history/${siteName}`)
+        .then(response => response.json())
+        .then(historyData => {
+            const ctx = document.getElementById('connectivityTrendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historyData.timestamps, // Array of timestamps
+                    datasets: [{
+                        label: 'Connectivity Score',
+                        data: historyData.scores, // Array of scores corresponding to timestamps
+                        borderColor: '#007bff',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day' // Adjust based on data granularity
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching historical data:', error));
+</script>

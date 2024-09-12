@@ -11,8 +11,6 @@ ny_basic_info = pd.DataFrame({
     'macAddress': [f'00:1e:0a:59:49:{i:02}' for i in range(1, 19)],
     'apType': ['Type_A', 'Type_B'] * 9,
     'location': [f'Location_{i % 10 + 1}' for i in range(1, 19)],
-    'upTime': [10000 + i * 1000 for i in range(18)],
-    'connectedTime': [5000 + i * 500 for i in range(18)]
 })
 
 ny_op_status = pd.DataFrame({
@@ -37,8 +35,8 @@ def calculate_site_info(basic_info, op_status):
     merged_data = pd.merge(basic_info, op_status, on=['name', 'id', 'macAddress'])
     total_devices = len(merged_data)
     healthy_devices = merged_data[merged_data['connectivityStatus'] == 100].shape[0]
-    warning_devices = merged_data[merged_data['connectivityStatus'] == 50].shape[0]
     critical_devices = merged_data[merged_data['connectivityStatus'] == 0].shape[0]
+    warning_devices = total_devices - healthy_devices - critical_devices
     
     return {
         'totalDevices': total_devices,
