@@ -1,0 +1,113 @@
+<div class="breadcrumbs">
+    <a href="/">Home</a> &gt; 
+    <a href="/overview">Site Overview</a> &gt; 
+    <span>{{ site_name }}</span> <!-- Dynamically replace with the current site name -->
+</div>
+
+<style>
+    .breadcrumbs {
+        padding: 10px;
+        background-color: #f8f9fa;
+        font-size: 14px;
+    }
+    .breadcrumbs a {
+        color: #007bff;
+        text-decoration: none;
+        margin-right: 5px;
+    }
+    .breadcrumbs a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+
+<!-- Side Navigation Container -->
+<div id="side-nav" class="side-nav">
+    <button class="close-btn" onclick="closeNav()">×</button>
+    <a href="/overview">Site Overview</a>
+    <!-- Dynamically populate site links -->
+    <div id="site-links">
+        <!-- Example Links -->
+        <a href="/site/site1">Site 1</a>
+        <a href="/site/site2">Site 2</a>
+        <!-- More sites -->
+    </div>
+</div>
+
+<!-- Button to open the Side Navigation -->
+<button class="open-nav-btn" onclick="openNav()">☰ Open Navigation</button>
+
+<style>
+    /* Side Navigation Styles */
+    .side-nav {
+        height: 100%;
+        width: 0;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: #111;
+        overflow-x: hidden;
+        transition: 0.5s;
+        padding-top: 60px;
+    }
+    .side-nav a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 20px;
+        color: #818181;
+        display: block;
+        transition: 0.3s;
+    }
+    .side-nav a:hover {
+        color: #f1f1f1;
+    }
+    .side-nav .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 25px;
+        font-size: 36px;
+        margin-left: 50px;
+        background: none;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+    }
+    .open-nav-btn {
+        font-size: 20px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        margin: 10px;
+        transition: background-color 0.3s;
+    }
+    .open-nav-btn:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+// Functions to open and close the side navigation
+function openNav() {
+    document.getElementById("side-nav").style.width = "250px";
+}
+
+function closeNav() {
+    document.getElementById("side-nav").style.width = "0";
+}
+
+// Optional: Populate site links dynamically using fetched data
+fetch('/site-list') // Replace with your actual endpoint to fetch site names
+    .then(response => response.json())
+    .then(sites => {
+        const siteLinksContainer = document.getElementById('site-links');
+        sites.forEach(site => {
+            const link = document.createElement('a');
+            link.href = `/site/${site.name}`;
+            link.textContent = site.name;
+            siteLinksContainer.appendChild(link);
+        });
+    })
+    .catch(error => console.error('Error fetching site list:', error));
