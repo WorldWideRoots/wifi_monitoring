@@ -479,3 +479,44 @@ async def api_call_with_auth(session, method, url, **kwargs):
         raise
 
 
+
+import csv
+from datetime import datetime
+
+# At the top of your script, create an asyncio lock
+file_lock = asyncio.Lock()
+
+# Function to append down devices to CSV
+async def append_down_devices_to_csv(down_devices):
+    async with file_lock:
+        file_exists = os.path.exists('down_devices.csv')
+        with open('down_devices.csv', mode='a', newline='') as file:
+            fieldnames = ['device_id', 'timestamp']
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            if not file_exists:
+                writer.writeheader()
+            for device in down_devices:
+                writer.writerow({
+                    'device_id': device['device_id'],
+                    'timestamp': datetime.now().isoformat()
+                })
+
+
+import pandas as pd
+from datetime import timedelta
+
+async def clean_old_entries():
+    async with file_lock:
+        try:
+            df = pd.read_csv('down_devices.csv')
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            cutoff_date = datetime.now() - timedelta(days=14)
+            # Keep only entries within the last 14 days
+            df = df[df['timestamp'] >= cutoff_date]
+            # Overwrite the CSV file with cleaned data
+            df.to_csv('down_devices.csv', index=False)
+            print("Old entries cleaned from down_devices.csv")
+        except FileNotFoundError:
+            print("down_devices.csv not found, skipping cleanup.")
+        except Exception as e:
+            print(f"Error during cleanup: {e}")
