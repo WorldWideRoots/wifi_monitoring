@@ -452,3 +452,30 @@ if __name__ == "__main__":
     asyncio.run(main())
 
 
+
+    async def get_auth_token(session, auth_url, username, password):
+    payload = {'username': username, 'password': password}
+    async with session.post(auth_url, json=payload) as response:
+        response.raise_for_status()
+        data = await response.json()
+        return data['auth_token']
+
+async def api_call_with_auth(session, method, url, **kwargs):
+    try:
+        async with session.request(method, url, **kwargs) as response:
+            if response.status == 401:
+                # Token expired or invalid, re-authenticate
+                auth_token = await get_auth_token(session, AUTH_URL, USERNAME, PASSWORD)
+                session.headers.update({'Authorization': f'Bearer {auth_token}'})
+                # Retry the request
+                async with session.request(method, url, **kwargs) as retry_response:
+                    retry_response.raise_for_status()
+                    return await retry_response.json()
+            else:
+                response.raise_for_status()
+                return await response.json()
+    except Exception as e:
+        print(f"API call failed: {e}")
+        raise
+
+
