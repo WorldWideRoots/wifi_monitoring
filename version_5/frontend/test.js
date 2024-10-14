@@ -1,0 +1,160 @@
+// Step 3: Implement the Header Component
+
+// src/components/Header.js
+import React from 'react';
+import { AppBar, Toolbar, Typography, makeStyles } from '@material-ui/core';
+import { Link } from 'react-router-dom';
+
+const useStyles = makeStyles({
+  title: {
+    flexGrow: 1,
+    textDecoration: 'none',
+    color: 'inherit',
+  },
+  link: {
+    marginRight: 20,
+    textDecoration: 'none',
+    color: 'inherit',
+  },
+});
+
+function Header() {
+  const classes = useStyles();
+
+  return (
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" className={classes.title} component={Link} to="/">
+          AP Monitoring System
+        </Typography>
+        <Typography variant="body1" component={Link} to="/" className={classes.link}>
+          Dashboard
+        </Typography>
+        <Typography variant="body1" component={Link} to="/sites" className={classes.link}>
+          Sites
+        </Typography>
+      </Toolbar>
+    </AppBar>
+  );
+}
+
+export default Header;
+
+// Step 4: Implement the Dashboard Component
+
+// src/components/Dashboard.js
+import React, { useEffect, useState } from 'react';
+import { Typography, Grid, Card, CardContent, makeStyles } from '@material-ui/core';
+import { getTotalDevices, getDownDevices } from '../services/deviceService';
+
+const useStyles = makeStyles({
+  card: {
+    minWidth: 200,
+    textAlign: 'center',
+  },
+  metric: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  label: {
+    fontSize: 16,
+  },
+});
+
+function Dashboard() {
+  const classes = useStyles();
+  const [totalDevices, setTotalDevices] = useState(0);
+  const [downDevicesCount, setDownDevicesCount] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const total = await getTotalDevices();
+      const downDevices = await getDownDevices();
+      setTotalDevices(total);
+      setDownDevicesCount(Object.keys(downDevices).length);
+    };
+    fetchData();
+  }, []);
+
+  return (
+    <div style={{ padding: 20 }}>
+      <Typography variant="h4" gutterBottom>
+        Network Dashboard
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={4}>
+          <Card className={classes.card}>
+            <CardContent>
+              <Typography className={classes.metric}>{totalDevices}</Typography>
+              <Typography className={classes.label}>Total Devices</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <Card className={classes.card} style={{ color: 'red' }}>
+            <CardContent>
+              <Typography className={classes.metric}>{downDevicesCount}</Typography>
+              <Typography className={classes.label}>Devices Down</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </div>
+  );
+}
+
+export default Dashboard;
+
+// Step 5: Set Up Routing and App Component
+
+// src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import Header from './components/Header';
+import Dashboard from './components/Dashboard';
+import SiteList from './components/SiteList';
+import SiteDetails from './components/SiteDetails';
+
+function App() {
+  return (
+    <Router>
+      <Header />
+      <Switch>
+        <Route path="/" exact component={Dashboard} />
+        <Route path="/sites" exact component={SiteList} />
+        <Route path="/sites/:siteId" component={SiteDetails} />
+      </Switch>
+    </Router>
+  );
+}
+
+export default App;
+
+// Step 6: Create Services to Fetch Data from Backend
+
+// src/services/api.js
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:5000/api',
+});
+
+export default api;
+
+// src/services/deviceService.js
+import api from './api';
+
+export const getTotalDevices = async () => {
+  const response = await api.get('/total-devices');
+  return response.data.totalDevices;
+};
+
+export const getDownDevices = async () => {
+  const response = await api.get('/down-devices');
+  return response.data.downDevices;
+};
+
+export const getSiteMapping = async () => {
+  const response = await api.get('/site-mapping');
+  return response.data.siteMapping;
+};
