@@ -383,3 +383,182 @@ export const getCurrentDownDevices = async () => {
     return [];
   }
 };
+
+
+
+// src/components/SiteList.js
+
+// src/services/deviceService.js
+import api from './api';
+
+export const getSiteMapping = async () => {
+  try {
+    const response = await api.get('/site-mapping');
+    console.log("Fetched Site Mapping:", response.data.siteMapping); // Added for debugging
+    return response.data.siteMapping;
+  } catch (error) {
+    console.error("Error fetching site mapping:", error);
+    return {};
+  }
+};
+
+export const getDeviceList = async () => {
+  try {
+    const response = await api.get('/device-list');
+    return response.data.deviceList;
+  } catch (error) {
+    console.error("Error fetching device list:", error);
+    return [];
+  }
+};
+
+export const getCurrentDownDevices = async () => {
+  try {
+    const response = await api.get('/current-down-device-info');
+    return response.data.downDevices;
+  } catch (error) {
+    console.error("Error fetching current down devices:", error);
+    return [];
+  }
+};
+
+import React, { useEffect, useState } from 'react';
+import { Typography, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
+import { getSiteMapping, getDeviceList, getCurrentDownDevices } from '../services/deviceService';
+import { Link } from 'react-router-dom';
+
+const useStyles = makeStyles({
+  listItem: {
+    textDecoration: 'none',
+    color: 'inherit',
+  },
+});
+
+function SiteList() {
+  const classes = useStyles();
+  const [sites, setSites] = useState({});
+  const [deviceCounts, setDeviceCounts] = useState({});
+  const [downDeviceCounts, setDownDeviceCounts] = useState({});
+
+  useEffect(() => {
+    const fetchSites = async () => {
+      const siteMapping = await getSiteMapping();
+      const deviceList = await getDeviceList();
+      const currentDownDevices = (await getCurrentDownDevices()) || [];
+
+      // Calculate total devices per site
+      const counts = {};
+      deviceList.forEach((device) => {
+        const siteCode = device.hostname.substring(0, 5).toUpperCase();
+        if (counts[siteCode]) {
+          counts[siteCode] += 1;
+        } else {
+          counts[siteCode] = 1;
+        }
+      });
+      setDeviceCounts(counts);
+
+      // Calculate down devices per site
+      const downCounts = {};
+      currentDownDevices.forEach((device) => {
+        const siteCode = device.nwDeviceName.substring(0, 5).toUpperCase();
+        if (downCounts[siteCode]) {
+          downCounts[siteCode] += 1;
+        } else {
+          downCounts[siteCode] = 1;
+        }
+      });
+      setDownDeviceCounts(downCounts);
+
+      setSites(siteMapping);
+    };
+    fetchSites();
+  }, []);
+
+  return (
+    <div style={{ padding: 20 }}>
+      <Typography variant="h4" gutterBottom>
+        Sites
+      </Typography>
+      <List>
+        {Object.entries(sites).map(([siteCode, siteName]) => (
+          <ListItem
+            button
+            key={siteCode}
+            component={Link}
+            to={`/sites/${siteCode}`}
+            className={classes.listItem}
+          >
+            <ListItemText
+              primary={`${siteName} (${(deviceCounts[siteCode] || 0) - (downDeviceCounts[siteCode] || 0)} UP / ${deviceCounts[siteCode] || 0} devices)`}
+            />
+          </ListItem>
+        ))}
+      </List>
+    </div>
+  );
+}
+
+export default SiteList;
+
+// src/components/SiteDetails.js
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Typography, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
+import { getDeviceList, getCurrentDownDevices } from '../services/deviceService';
+
+const useStyles = makeStyles({
+  listItem: {
+    textDecoration: 'none',
+    color: 'inherit',
+  },
+});
+
+function SiteDetails() {
+  const classes = useStyles();
+  const { siteId } = useParams();
+  const [devices, setDevices] = useState([]);
+  const [downDevices, setDownDevices] = useState([]);
+
+  useEffect(() => {
+    const fetchDevices = async () => {
+      const deviceList = await getDeviceList();
+      const currentDownDevices = (await getCurrentDownDevices()) || [];
+
+      // Filter devices for the current site
+      const filteredDevices = deviceList.filter(
+        (device) => device.hostname.substring(0, 5).toUpperCase() === siteId.toUpperCase()
+      );
+      setDevices(filteredDevices);
+
+      // Filter down devices for the current site
+      const filteredDownDevices = currentDownDevices.filter(
+        (device) => device.nwDeviceName.substring(0, 5).toUpperCase() === siteId.toUpperCase()
+      );
+      setDownDevices(filteredDownDevices);
+    };
+    fetchDevices();
+  }, [siteId]);
+
+  return (
+    <div style={{ padding: 20 }}>
+      <Typography variant="h4" gutterBottom>
+        Site Details - {siteId}
+      </Typography>
+      <Typography variant="h6" gutterBottom>
+        Devices
+      </Typography>
+      <List>
+        {devices.map((device) => (
+          <ListItem key={device.macAddress} className={classes.listItem}>
+            <ListItemText
+              primary={`${device.hostname} - ${downDevices.some(d => d.macAddress === device.macAddress) ? 'DOWN' : 'UP'}`}
+            />
+          </ListItem>
+        ))}
+      </List>
+    </div>
+  );
+}
+
+export default SiteDetails;
