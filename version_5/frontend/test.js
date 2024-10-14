@@ -160,3 +160,56 @@ export const getSiteMapping = async () => {
   const response = await api.get('/site-mapping');
   return response.data.siteMapping;
 };
+
+
+// Step 7: Implement the SiteList Component
+
+// src/components/SiteList.js
+import React, { useEffect, useState } from 'react';
+import { Typography, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
+import { getSiteMapping } from '../services/deviceService';
+import { Link } from 'react-router-dom';
+
+const useStyles = makeStyles({
+  listItem: {
+    textDecoration: 'none',
+    color: 'inherit',
+  },
+});
+
+function SiteList() {
+  const classes = useStyles();
+  const [sites, setSites] = useState({});
+
+  useEffect(() => {
+    const fetchSites = async () => {
+      const siteMapping = await getSiteMapping();
+      setSites(siteMapping);
+    };
+    fetchSites();
+  }, []);
+
+  return (
+    <div style={{ padding: 20 }}>
+      <Typography variant="h4" gutterBottom>
+        Sites
+      </Typography>
+      <List>
+        {Object.entries(sites).map(([siteCode, siteName]) => (
+          <ListItem
+            button
+            key={siteCode}
+            component={Link}
+            to={`/sites/${siteCode}`}
+            className={classes.listItem}
+          >
+            <ListItemText primary={siteName} />
+          </ListItem>
+        ))}
+      </List>
+    </div>
+  );
+}
+
+export default SiteList;
+
