@@ -288,6 +288,69 @@ function SiteList() {
 export default SiteList;
 
 
+// src/components/SiteDetails.js
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Typography, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
+import { getDeviceList, getCurrentDownDevices } from '../services/deviceService';
+
+const useStyles = makeStyles({
+  listItem: {
+    textDecoration: 'none',
+    color: 'inherit',
+  },
+});
+
+function SiteDetails() {
+  const classes = useStyles();
+  const { siteId } = useParams();
+  const [devices, setDevices] = useState([]);
+  const [downDevices, setDownDevices] = useState([]);
+
+  useEffect(() => {
+    const fetchDevices = async () => {
+      const deviceList = await getDeviceList();
+      const currentDownDevices = (await getCurrentDownDevices()) || [];
+
+      // Filter devices for the current site
+      const filteredDevices = deviceList.filter(
+        (device) => device.hostname.substring(0, 5).toUpperCase() === siteId.toUpperCase()
+      );
+      setDevices(filteredDevices);
+
+      // Filter down devices for the current site
+      const filteredDownDevices = currentDownDevices.filter(
+        (device) => device.nwDeviceName.substring(0, 5).toUpperCase() === siteId.toUpperCase()
+      );
+      setDownDevices(filteredDownDevices);
+    };
+    fetchDevices();
+  }, [siteId]);
+
+  return (
+    <div style={{ padding: 20 }}>
+      <Typography variant="h4" gutterBottom>
+        Site Details - {siteId}
+      </Typography>
+      <Typography variant="h6" gutterBottom>
+        Devices
+      </Typography>
+      <List>
+        {devices.map((device) => (
+          <ListItem key={device.macAddress} className={classes.listItem}>
+            <ListItemText
+              primary={`${device.hostname} - ${downDevices.some(d => d.macAddress === device.macAddress) ? 'DOWN' : 'UP'}`}
+            />
+          </ListItem>
+        ))}
+      </List>
+    </div>
+  );
+}
+
+export default SiteDetails;
+
+
 
 
 export const getSiteMapping = async () => {
