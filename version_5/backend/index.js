@@ -48,8 +48,8 @@ function readJSONFile(filePath) {
 // GET /api/total-devices
 app.get('/api/total-devices', async (req, res) => {
   try {
-    const data = await readJSONFile('data/total_devices.json');
-    res.json({ totalDevices: data.totalDevices });
+    const data = await readJSONFile('data/device_count.json');
+    res.json({ totalDevices: data.device_count, timestamp: data.timestamp });
   } catch (error) {
     res.status(500).json({ error: 'Failed to read total devices' });
   }
@@ -68,7 +68,7 @@ app.get('/api/device-list', async (req, res) => {
 // GET /api/down-devices
 app.get('/api/down-devices', async (req, res) => {
   try {
-    const downDevices = await readCSVFile('data/down_devices.csv');
+    const downDevices = await readJSONFile('data/down_devices.json');
     res.json({ downDevices });
   } catch (error) {
     res.status(500).json({ error: 'Failed to read down devices' });
@@ -78,10 +78,20 @@ app.get('/api/down-devices', async (req, res) => {
 // GET /api/site-mapping
 app.get('/api/site-mapping', async (req, res) => {
   try {
-    const siteMapping = await readJSONFile('data/site_mapping.json');
+    const siteMapping = await readJSONFile('data/site_code_map.json');
     res.json({ siteMapping });
   } catch (error) {
     res.status(500).json({ error: 'Failed to read site mapping' });
+  }
+});
+
+// GET /api/current-down-device-info
+app.get('/api/current-down-device-info', async (req, res) => {
+  try {
+    const downDeviceInfo = await readCSVFile('data/current_down_device_info.csv');
+    res.json({ downDeviceInfo });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to read current down device info' });
   }
 });
 
