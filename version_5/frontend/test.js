@@ -562,3 +562,62 @@ function SiteDetails() {
 }
 
 export default SiteDetails;
+
+
+
+
+
+
+
+# ---------------------------------- 2222 # 
+
+
+src/services/api.js.
+
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:5000/api',
+});
+
+export const fetchData = async (endpoint) => {
+  try {
+    const response = await api.get(endpoint);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching ${endpoint}:`, error);
+    throw error;
+  }
+};
+
+export default api;
+
+src/services/deviceService.js
+
+import { fetchData } from './api';
+
+export const getTotalDevices = async () => {
+  const data = await fetchData('/total-devices');
+  return data.totalDevices;
+};
+
+export const getDownDevices = async () => {
+  const data = await fetchData('/down-devices');
+  return data.downDevices;
+};
+
+export const getSiteMapping = async () => {
+  const data = await fetchData('/site-mapping');
+  return data.siteMapping;
+};
+
+export const getDeviceList = async () => {
+  const data = await fetchData('/device-list');
+  return data.deviceList;
+};
+
+export const getCurrentDownDevices = async () => {
+  const data = await fetchData('/current-down-device-info');
+  return data.downDevices;
+};
+
