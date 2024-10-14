@@ -592,6 +592,8 @@ export const fetchData = async (endpoint) => {
 
 export default api;
 
+
+
 src/services/deviceService.js
 
 import { fetchData } from './api';
@@ -620,4 +622,19 @@ export const getCurrentDownDevices = async () => {
   const data = await fetchData('/current-down-device-info');
   return data.downDevices;
 };
+
+
+
+
+// src/utils/dataProcessing.js
+
+export const calculateDeviceCounts = (deviceList, key = 'hostname') => {
+  const counts = {};
+  deviceList.forEach((device) => {
+    const siteCode = device[key].substring(0, 5).toUpperCase();
+    counts[siteCode] = (counts[siteCode] || 0) + 1;
+  });
+  return counts;
+};
+
 
