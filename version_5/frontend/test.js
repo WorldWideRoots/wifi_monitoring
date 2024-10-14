@@ -167,7 +167,7 @@ export const getSiteMapping = async () => {
 // src/components/SiteList.js
 import React, { useEffect, useState } from 'react';
 import { Typography, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
-import { getSiteMapping } from '../services/deviceService';
+import { getSiteMapping, getDeviceList, getDownDevices } from '../services/deviceService';
 import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles({
@@ -180,14 +180,49 @@ const useStyles = makeStyles({
 function SiteList() {
   const classes = useStyles();
   const [sites, setSites] = useState({});
+  const [deviceCounts, setDeviceCounts] = useState({});
+  const [downDeviceCounts, setDownDeviceCounts] = useState({});
 
   useEffect(() => {
     const fetchSites = async () => {
       const siteMapping = await getSiteMapping();
       setSites(siteMapping);
+
+      const deviceList = await getDeviceList();
+      const downDevices = await getDownDevices();
+
+      const counts = {};
+      const downCounts = {};
+
+      deviceList.forEach((device) => {
+        const siteCode = device.hostname.substring(0, 5);
+        if (counts[siteCode]) {
+          counts[siteCode] += 1;
+        } else {
+          counts[siteCode] = 1;
+        }
+      });
+
+      Object.values(downDevices).forEach((device) => {
+        const siteCode = device.hostname.substring(0, 5);
+        if (downCounts[siteCode]) {
+          downCounts[siteCode] += 1;
+        } else {
+          downCounts[siteCode] = 1;
+        }
+      });
+
+      setDeviceCounts(counts);
+      setDownDeviceCounts(downCounts);
     };
     fetchSites();
   }, []);
+
+  const sortedSites = Object.entries(sites).sort(([, siteNameA], [, siteNameB]) => {
+    const downCountA = downDeviceCounts[siteNameA] || 0;
+    const downCountB = downDeviceCounts[siteNameB] || 0;
+    return downCountB - downCountA;
+  });
 
   return (
     <div style={{ padding: 20 }}>
@@ -195,7 +230,7 @@ function SiteList() {
         Sites
       </Typography>
       <List>
-        {Object.entries(sites).map(([siteCode, siteName]) => (
+        {sortedSites.map(([siteCode, siteName]) => (
           <ListItem
             button
             key={siteCode}
@@ -203,7 +238,9 @@ function SiteList() {
             to={`/sites/${siteCode}`}
             className={classes.listItem}
           >
-            <ListItemText primary={siteName} />
+            <ListItemText
+              primary={`${siteName} (${(deviceCounts[siteCode] || 0) - (downDeviceCounts[siteCode] || 0)} UP / ${deviceCounts[siteCode] || 0} devices)`}
+            />
           </ListItem>
         ))}
       </List>
