@@ -108,8 +108,10 @@ export default Dashboard;
 // Step 5: Set Up Routing and App Component
 
 // src/App.js
+
+// src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import SiteList from './components/SiteList';
@@ -119,11 +121,11 @@ function App() {
   return (
     <Router>
       <Header />
-      <Switch>
-        <Route path="/" exact component={Dashboard} />
-        <Route path="/sites" exact component={SiteList} />
-        <Route path="/sites/:siteId" component={SiteDetails} />
-      </Switch>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/sites" element={<SiteList />} />
+        <Route path="/sites/:siteId" element={<SiteDetails />} />
+      </Routes>
     </Router>
   );
 }
