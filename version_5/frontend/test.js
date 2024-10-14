@@ -206,8 +206,6 @@ export const getCurrentDownDevices = async () => {
   }
 };
 
-// Step 7: Implement the SiteList Component
-
 // src/components/SiteList.js
 import React, { useEffect, useState } from 'react';
 import { Typography, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
@@ -282,3 +280,8 @@ function SiteList() {
           </ListItem>
         ))}
       </List>
+    </div>
+  );
+}
+
+export default SiteList;
