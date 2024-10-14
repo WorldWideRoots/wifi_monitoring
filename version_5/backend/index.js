@@ -99,3 +99,5 @@ app.get('/api/current-down-device-info', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+curl http://localhost:5000/api/device-list
