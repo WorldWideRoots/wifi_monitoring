@@ -207,9 +207,10 @@ export const getCurrentDownDevices = async () => {
 };
 
 // src/components/SiteList.js
+
 import React, { useEffect, useState } from 'react';
 import { Typography, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
-import { getSiteMapping, getDeviceList, getCurrentDownDevices } from '../services/deviceService';
+import { getSiteMapping, getCurrentDownDevices } from '../services/deviceService';
 import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles({
@@ -229,7 +230,7 @@ function SiteList() {
     const fetchSites = async () => {
       const siteMapping = await getSiteMapping();
       const deviceList = await getDeviceList();
-      const currentDownDevices = await getCurrentDownDevices();
+      const currentDownDevices = (await getCurrentDownDevices()) || [];
 
       // Calculate total devices per site
       const counts = {};
