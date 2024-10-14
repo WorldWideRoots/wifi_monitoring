@@ -285,3 +285,37 @@ function SiteList() {
 }
 
 export default SiteList;
+
+
+
+
+export const getSiteMapping = async () => {
+  try {
+    const response = await api.get('/site-mapping');
+    console.log("Fetched Site Mapping:", response.data.siteMapping); // Added for debugging
+    return response.data.siteMapping;
+  } catch (error) {
+    console.error("Error fetching site mapping:", error);
+    return {};
+  }
+};
+
+export const getDeviceList = async () => {
+  try {
+    const response = await api.get('/device-list');
+    return response.data.deviceList;
+  } catch (error) {
+    console.error("Error fetching device list:", error);
+    return [];
+  }
+};
+
+export const getCurrentDownDevices = async () => {
+  try {
+    const response = await api.get('/current-down-device-info');
+    return response.data.downDevices;
+  } catch (error) {
+    console.error("Error fetching current down devices:", error);
+    return [];
+  }
+};
